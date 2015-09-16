@@ -62,43 +62,43 @@ int ESP8266Client::connect(IPAddress ip, uint16_t port, uint32_t keepAlive)
 	
 int ESP8266Client::connect(const char* host, uint16_t port, uint32_t keepAlive) 
 {
-	_socket = getFirstSocket();
-	
+    _socket = getFirstSocket();
+
     if (_socket != ESP8266_SOCK_NOT_AVAIL)
     {
-		esp8266._state[_socket] = TAKEN;
-		int16_t rsp = esp8266.tcpConnect(_socket, host, port, keepAlive);
-		
-		return rsp;
-	}
+        esp8266._state[_socket] = TAKEN;
+        int16_t rsp = esp8266.tcpConnect(_socket, host, port, keepAlive);
+
+        return rsp;
+    }
 }
 
 size_t ESP8266Client::write(uint8_t c)
 {
-	return write(&c, 1);
+    return write(&c, 1);
 }
 
 size_t ESP8266Client::write(const uint8_t *buf, size_t size)
 {
-	return esp8266.tcpSend(_socket, buf, size);
+    return esp8266.tcpSend(_socket, buf, size);
 }
 
 int ESP8266Client::available()
 {
-	int available = esp8266.available();
-	if (available == 0)
-	{
-		// Delay for the amount of time it'd take to receive one character
-		delayMicroseconds((1 / esp8266._baud) * 10 * 1E6);
-		// Check again just to be sure:
-		available = esp8266.available();
-	}
-	return esp8266.available();
+    int available = esp8266.available();
+    if (available == 0)
+    {
+        // Delay for the amount of time it'd take to receive one character
+        delayMicroseconds((1 / esp8266._baud) * 10 * 1E6);
+        // Check again just to be sure:
+        available = esp8266.available();
+    }
+    return esp8266.available();
 }
 
 int ESP8266Client::read()
 {
-	return esp8266.read();
+    return esp8266.read();
 }
 
 int ESP8266Client::read(uint8_t *buf, size_t size)

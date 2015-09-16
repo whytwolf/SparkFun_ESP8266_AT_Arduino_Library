@@ -123,7 +123,7 @@ class ESP8266Class : public Stream
 public:
 	ESP8266Class();
 	
-	bool begin(unsigned long baudRate = 9600, esp8266_serial_port serialPort = ESP8266_SOFTWARE_SERIAL);
+        bool begin(unsigned long baudRate = 115200, esp8266_serial_port serialPort = ESP8266_SOFTWARE_SERIAL);
 	
 	///////////////////////
 	// Basic AT Commands //
@@ -145,10 +145,12 @@ public:
 	int16_t getAP(char * ssid);
 	int16_t disconnect();
 	IPAddress localIP();
+        IPAddress remoteIP(uint8_t linkID);
+        uint16_t remotePort(uint8_t linkID);
 	
-	/////////////////////
-	// TCP/IP Commands //
-	/////////////////////
+        /////////////////////////
+        // UDP/TCP/IP Commands //
+        /////////////////////////
 	int16_t status();
 	int16_t updateStatus();
 	int16_t tcpConnect(uint8_t linkID, const char * destination, uint16_t port, uint16_t keepAlive);
@@ -158,7 +160,9 @@ public:
 	int16_t setMux(uint8_t mux);
 	int16_t configureTCPServer(uint16_t port, uint8_t create = 1);
 	int16_t ping(IPAddress ip);
-	int16_t ping(char * server);
+        int16_t ping(char * server);
+        int16_t udpConnect(uint8_t linkID, const char * destination, uint16_t remote_port, uint16_t local_port, uint8_t udp_mode);
+        int16_t udpSend(uint8_t linkID, const uint8_t *buf, size_t size, const char * destination, uint16_t remote_port);
 		
 	//////////////////////////
 	// Custom GPIO Commands //

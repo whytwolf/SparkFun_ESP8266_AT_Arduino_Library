@@ -318,7 +318,7 @@ int16_t ESP8266Class::status()
 
 int16_t ESP8266Class::updateStatus()
 {
-	sendCommand(ESP8266_TCP_STATUS); // Send AT+CIPSTATUS\r\n
+        sendCommand(ESP8266_IP_STATUS); // Send AT+CIPSTATUS\r\n
 	// Example response: (connected as client)
 	// STATUS:3\r\n
 	// +CIPSTATUS:0,"TCP","93.184.216.34",80,0\r\n\r\nOK\r\n 
@@ -442,17 +442,27 @@ IPAddress ESP8266Class::localIP()
 		}
 	}
 	
-	return rsp;
+        return rsp;
 }
 
-/////////////////////
-// TCP/IP Commands //
-/////////////////////
+IPAddress ESP8266Class::remoteIP(uint8_t linkID)
+{
+    return _status.ipstatus[linkID].remoteIP;
+}
+
+uint16_t ESP8266Class::remotePort(uint8_t linkID)
+{
+    _status.ipstatus[linkID].port;
+}
+
+/////////////////////////
+// UDP/TCP/IP Commands //
+/////////////////////////
 
 int16_t ESP8266Class::tcpConnect(uint8_t linkID, const char * destination, uint16_t port, uint16_t keepAlive)
 {
 	print("AT");
-	print(ESP8266_TCP_CONNECT);
+        print(ESP8266_IP_CONNECT);
 	print('=');
 	print(linkID);
 	print(',');
@@ -494,7 +504,7 @@ int16_t ESP8266Class::tcpSend(uint8_t linkID, const uint8_t *buf, size_t size)
 		return ESP8266_CMD_BAD;
 	char params[8];
 	sprintf(params, "%d,%d", linkID, size);
-	sendCommand(ESP8266_TCP_SEND, ESP8266_CMD_SETUP, params);
+        sendCommand(ESP8266_IP_SEND, ESP8266_CMD_SETUP, params);
 	
 	int16_t rsp = readForResponses(RESPONSE_OK, RESPONSE_ERROR, COMMAND_RESPONSE_TIMEOUT);
 	//if (rsp > 0)
@@ -585,7 +595,68 @@ int16_t ESP8266Class::ping(char * server)
 			return 0;
 	}
 	
-	return rsp;
+        return rsp;
+}
+
+int16_t ESP8266Class::udpConnect(uint8_t linkID, const char *destination, uint16_t remote_port, uint16_t local_port, uint8_t udp_mode)
+{
+    print("AT");
+    print(ESP8266_IP_CONNECT);
+    print('=');
+    print(linkID);
+    print(',');
+    print("\"UDP\",");
+    print("\"");
+    print(destination);
+    print("\",");
+    print(remote_port);
+    print("\",");
+    print(local_port);
+    print("\",");
+    print(udp_mode);
+    print("\r\n");
+    // Example good: CONNECT\r\n\r\nOK\r\n
+    // Example bad: DNS Fail\r\n\r\nERROR\r\n
+    // Example meh: ALREADY CONNECTED\r\n\r\nERROR\r\n
+    int16_t rsp = readForResponses(RESPONSE_OK, RESPONSE_ERROR, CLIENT_CONNECT_TIMEOUT);
+
+    if (rsp < 0)
+    {
+            // We may see "ERROR", but be "ALREADY CONNECTED".
+            // Search for "ALREADY", and return success if we see it.
+            char * p = searchBuffer("ALREADY");
+            if (p != NULL)
+                    return 2;
+            // Otherwise the connection failed. Return the error code:
+            return rsp;
+    }
+    // Return 1 on successful (new) connection
+    return 1;
+
+}
+
+int16_t ESP8266Class::udpSend(uint8_t linkID, const uint8_t *buf, size_t size, const char *destination, uint16_t remote_port)
+{
+    if (size > 2048)
+            return ESP8266_CMD_BAD;
+
+    char params[8];
+    sprintf(params, "%d,%d,%s,%d", linkID, size, destination, remote_port);
+    sendCommand(ESP8266_IP_SEND, ESP8266_CMD_SETUP, params);
+
+    int16_t rsp = readForResponses(RESPONSE_OK, RESPONSE_ERROR, COMMAND_RESPONSE_TIMEOUT);
+    //if (rsp > 0)
+    if (rsp != ESP8266_RSP_FAIL)
+    {
+            print((const char *)buf);
+
+            rsp = readForResponse("SEND OK", COMMAND_RESPONSE_TIMEOUT);
+
+            if (rsp > 0)
+                    return size;
+    }
+
+    return rsp;
 }
 
 //////////////////////////

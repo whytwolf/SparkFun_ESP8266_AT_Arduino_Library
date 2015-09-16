@@ -57,9 +57,9 @@ const char ESP8266_DISCONNECT[] = "+CWQAP"; // Disconnect from AP
 /////////////////////
 // TCP/IP Commands //
 /////////////////////
-const char ESP8266_TCP_STATUS[] = "+CIPSTATUS"; // Get connection status
-const char ESP8266_TCP_CONNECT[] = "+CIPSTART"; // Establish TCP connection or register UDP port
-const char ESP8266_TCP_SEND[] = "+CIPSEND"; // Send Data
+const char ESP8266_IP_STATUS[] = "+CIPSTATUS"; // Get connection status
+const char ESP8266_IP_CONNECT[] = "+CIPSTART"; // Establish TCP connection or register UDP port
+const char ESP8266_IP_SEND[] = "+CIPSEND"; // Send Data
 const char ESP8266_TCP_CLOSE[] = "+CIPCLOSE"; // Close TCP/UDP connection
 const char ESP8266_GET_LOCAL_IP[] = "+CIFSR"; // Get local IP address
 const char ESP8266_TCP_MULTIPLE[] = "+CIPMUX"; // Set multiple connections mode
