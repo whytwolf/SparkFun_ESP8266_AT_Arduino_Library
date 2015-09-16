@@ -28,7 +28,7 @@ Distributed as-is; no warranty is given.
 
 uint8_t ESP8266UDP::getFirstSocket()
 {
-    /*
+    esp8266.updateStatus();
     for (int i = 0; i < ESP8266_MAX_SOCK_NUM; i++)
     {
             if (esp8266._state[i] == AVAILABLE)
@@ -37,7 +37,7 @@ uint8_t ESP8266UDP::getFirstSocket()
             }
     }
     return ESP8266_SOCK_NOT_AVAIL;
-    */
+    /*
     esp8266.updateStatus();
     for (int i = 0; i < ESP8266_MAX_SOCK_NUM; i++)
     {
@@ -47,6 +47,7 @@ uint8_t ESP8266UDP::getFirstSocket()
             }
     }
     return ESP8266_SOCK_NOT_AVAIL;
+    */
 }
 
 ESP8266UDP::ESP8266UDP()
@@ -75,14 +76,13 @@ int ESP8266UDP::beginPacket(IPAddress ip, uint16_t port)
 {
     char ipAddress[16];
     sprintf(ipAddress, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-    return connect((const char *)ipAddress, port, keepAlive);
-
+    //return esp8266.udpConnect(_socket,(const char *)ipAddress, port,_local_port,2);
+    return beginPacket(ipAddress,port);
 }
 
 int ESP8266UDP::beginPacket(const char *host, uint16_t port)
 {
-    _remote_port = port;
-    esp8266.udpConnect(_linkID,host,port,_local_port,2); // TODO: UDP mode
+    esp8266.udpConnect(_socket,host,port,_local_port,2); // TODO: UDP mode
 }
 
 int ESP8266UDP::endPacket()
@@ -96,7 +96,11 @@ size_t ESP8266UDP::write(uint8_t c)
 
 size_t ESP8266UDP::write(const uint8_t *buffer, size_t size)
 {
-    return esp8266.udpSend(_socket,buffer,size,remoteIP(),remotePort());
+    // TODO: separate to utils:
+    IPAddress ip = remoteIP();
+    char ipAddress[16];
+    sprintf(ipAddress, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+    return esp8266.udpSend(_socket,buffer,size,ipAddress,remotePort());
 }
 
 int ESP8266UDP::parsePacket()
@@ -112,7 +116,7 @@ int ESP8266UDP::available()
         if (available == 0)
         {
             // Delay for the amount of time it'd take to receive one character
-            delayMicroseconds((1 / esp8266._baud) * 10 * 1E6);
+            delayMicroseconds((1 / esp8266.getBaud()) * 10 * 1E6);
             // Check again just to be sure:
             available = esp8266.available();
         }
@@ -128,6 +132,24 @@ int ESP8266UDP::read()
 
 int ESP8266UDP::read(char *buffer, size_t len) {
     return read((unsigned char*)buffer, len);
+}
+
+int ESP8266UDP::read(unsigned char* buffer, size_t len) {
+    int a = esp8266.available();
+    if (a == 0)
+    {
+        return a;
+    }
+    else {
+        if (len<a) {
+            a=len;
+        }
+        for (int i=0; i<a; i++)
+        {
+                buffer[i] = esp8266.read();
+        }
+    }
+    return a;
 }
 
 int ESP8266UDP::peek()

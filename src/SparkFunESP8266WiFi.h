@@ -138,6 +138,7 @@ public:
 	// WiFi Functions //
 	////////////////////
 	int16_t getMode();
+        unsigned long getBaud();
 	int16_t setMode(esp8266_wifi_mode mode);
 	int16_t setMode(int8_t mode);
 	int16_t connect(const char * ssid);

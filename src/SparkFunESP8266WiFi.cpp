@@ -844,3 +844,9 @@ char * ESP8266Class::searchBuffer(const char * test)
 }
 
 ESP8266Class esp8266;
+
+
+unsigned long ESP8266Class::getBaud()
+{
+    return _baud;
+}
