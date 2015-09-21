@@ -5,7 +5,9 @@ SparkFun ESP8266 AT Arduino Library
 
 [*SparkFun ESP8266 WiFi Shield (WRL-13287)*](https://www.sparkfun.com/products/13287)
 
-An Arduino library for the SparkFun ESP8266 WiFi Shield. This library makes it easy to connect to WiFi networks, and also implements TCP/IP client and server.
+An Arduino library for the SparkFun ESP8266 WiFi Shield. This library makes it easy to connect to WiFi networks, and also implements TCP/IP client and server and UDP support.
+
+It's highly recommended to use esp8266 firmware higher than 0.9.4 with AT commands send higher than v0.2 to get udp working more or less well with manufacturer firmware.
 
 Repository Contents
 -------------------
